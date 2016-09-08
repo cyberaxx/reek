@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'set'
 require_relative 'smell_configuration'
+require_relative 'unneeded_suppression'
 
 module Reek
   module Smells
@@ -38,10 +39,13 @@ module Reek
       end
 
       def run_for(context)
-        return [] unless enabled_for?(context)
         return [] if exception?(context)
 
-        sniff(context)
+        if enabled_for?(context)
+          sniff(context)
+        else
+          ::Reek::Smells::UnneededSuppression.new(context, self).sniff
+        end
       end
 
       def exception?(context)
